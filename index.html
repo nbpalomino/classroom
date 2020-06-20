@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <link rel="stylesheet" href="//fonts.xz.style/serve/inter.css">
+    <link rel="stylesheet" href="//cdn.jsdelivr.net/npm/@exampledev/new.css@1/new.min.css">
+    <script src="//cdn.jsdelivr.net/gh/alpinejs/alpine@v2.x.x/dist/alpine.min.js" defer></script>
+    <style>
+        .center {
+            text-align: center;
+        }
+    </style>
+    <title>Classroom</title>
+</head>
+<body>    
+    <main x-data="init()">        
+        <header>
+            <h1>Bienvenido <span x-text="user.name || 'estudiante'"></span></h1>
+            <nav>
+                <a href="/login">Ingresar</a> \ 
+                <a href="/revisar">Revisar</a> \ 
+                <a href="/admin">Admin</a>
+            </nav>
+        </header>
+
+        <section x-show="stage.login" class="center">
+            <h2>Iniciar sesión</h2>
+            <div>
+                <p>
+                    <label for="nombre">Nombre</label><br>
+                    <input type="text" id="nombre" x-model="user.id" placeholder="Ingrese nombre">
+                </p>
+                <button @click="doLogin">Ingresar</button>
+            </div>
+        </section>
+
+        <section x-show="stage.courses" class="center">
+            <h2>Elegir el curso</h2>
+            <template x-for="item in courses" :key="item.id">
+                <div>
+                    <h1>
+                        <span x-text="item.title || 'No definido'"></span>                        
+                    </h1>
+                    <button @click="openCourse(item)">Ingresar</button>
+                    <hr>
+                </div>
+            </template>
+        </section>
+
+        <section x-show="stage.upload" class="center">
+            <h2>Subir archivos para <span x-text="course.title"></span></h2>
+            <br>
+            <template x-if="course.isOpen">
+                <form id="formFiles">                
+                    <p>
+                        <label>Archivos</label><br>
+                        <input type="file" x-ref="pics" @change="loaded" multiple accept="image/*"/>
+                    </p>
+                    <p>
+                        <button @click.prevent="sendFiles" id="btnSend">Enviar archivos</button>
+                    </p>
+                </form>
+            </template>
+            <template x-if="!course.isOpen">
+                <h4>El curso <span x-text="course.title"></span> se encuentra <mark>CERRADO</mark></h4>
+            </template>
+        </section>
+      
+    </main>    
+    <script>
+        function init() {
+            const form = document.getElementById("formFiles");
+
+            return {
+                title: "Curso de EPT",
+                user: {},
+                course: {},
+                courses: [
+                    {id: 1, title: "EPT", isOpen: true, maxFiles: 10},
+                    {id: 2, title: "Tutoria", isOpen: false, maxFiles: 2},
+                ],
+                stage: {
+                    login: true,
+                    courses: false,
+                    upload: false,
+                },
+
+
+                doLogin() {
+                    this.stage.login = false;
+                    this.user.name = this.user.id;
+                    this.stage.courses = true;
+                },
+                openCourse(item) {
+                    this.stage.courses = false;
+
+                    this.course = item;
+
+                    this.stage.upload = true;
+                },
+                addInput() {                    
+                    console.log("clicked");
+                    console.log("Axios is loaded ? ");
+                    console.dir(axios);
+                    form.appendChild(buildInputFile());
+                },
+                sendFiles(e) {
+                    console.log("enviando archivos ... ");
+                    console.dir(this.$refs.pics.files);
+                },
+                loaded(e) {
+                    console.log("Loaded files");
+                    console.dir(e);
+                },
+            }
+        }
+
+        function buildInputFile() {
+            let input = document.createElement("input");
+            return input;
+        }
+    </script>
+    <script src="//cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+</body>
+</html>

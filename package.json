@@ -1,0 +1,12 @@
+{
+  "name": "classroom",
+  "version": "1.0.0",
+  "description": "Classroom for Imelda",
+  "main": "index.js",
+  "author": "nbpalomino@gmail.com",
+  "license": "ISV",
+  "private": true,
+  "dependencies": {
+    "http-server": "^0.12.3"
+  }
+}
