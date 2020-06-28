@@ -6,7 +6,18 @@
   "author": "nbpalomino@gmail.com",
   "license": "ISV",
   "private": true,
+  "scripts": {
+    "dev": "parcel index.html",
+    "build": "parcel build index.html"
+  },
   "dependencies": {
-    "http-server": "^0.12.3"
+    "axios": "^0.19.2",
+    "date-fns": "^2.14.0",
+    "sweetalert": "^2.1.2"
+  },
+  "devDependencies": {
+    "parcel-bundler": "^1.12.4",
+    "postcss": "^7.0.32",
+    "tailwindcss": "^1.4.6"
   }
 }

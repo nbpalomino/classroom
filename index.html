@@ -1,127 +1,165 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="ES">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-    <link rel="stylesheet" href="//fonts.xz.style/serve/inter.css">
-    <link rel="stylesheet" href="//cdn.jsdelivr.net/npm/@exampledev/new.css@1/new.min.css">
+    <link rel="stylesheet" href="/assets/styles.css">
     <script src="//cdn.jsdelivr.net/gh/alpinejs/alpine@v2.x.x/dist/alpine.min.js" defer></script>
-    <style>
-        .center {
-            text-align: center;
-        }
-    </style>
+    <script src="/index.js"></script>
     <title>Classroom</title>
 </head>
-<body>    
-    <main x-data="init()">        
-        <header>
-            <h1>Bienvenido <span x-text="user.name || 'estudiante'"></span></h1>
-            <nav>
-                <a href="/login">Ingresar</a> \ 
-                <a href="/revisar">Revisar</a> \ 
-                <a href="/admin">Admin</a>
-            </nav>
+
+<body class="bg-gray-300 text-gray-700 h-screen block">
+    <main x-data="App()" x-init="init()" worker-main>
+        <header class="bg-purple-600 shadow-md">
+            <div class="max-w-6xl mx-auto px-6">
+                <div class="flex items-center justify-between h-16">
+                    <div class="flex items-center">
+                        <div class="flex-shrink-0">
+                            <svg class="h-8 w-8 fill-current text-white" xmlns="http://www.w3.org/2000/svg"
+                                viewBox="0 0 24 24">
+                                <path
+                                    d="M12 22a10 10 0 110-20 10 10 0 010 20zm0-2a8 8 0 100-16 8 8 0 000 16zM9.56 8.93l6.37-2.12a1 1 0 011.26 1.26l-2.12 6.37a1 1 0 01-.63.63l-6.37 2.12a1 1 0 01-1.26-1.26l2.12-6.37a1 1 0 01.63-.63zm-.22 5.73l4-1.33 1.32-4-4 1.34-1.32 4z" />
+                            </svg>
+                        </div>
+                        <div class="block">
+                            <div class="ml-6 flex items-baseline">
+                                <a href="#" @click.prevent="" x-text="title || 'Sistema'"
+                                    class="ml-4 px-3 py-2 rounded-md text-sm font-medium text-white bg-purple-800 focus:outline-none focus:text-white focus:bg-purple-700"></a>
+                                <!-- <a href="#"
+                                    class="ml-4 px-3 py-2 rounded-md text-sm font-medium text-purple-200 bg-purple-600 focus:outline-none focus:text-white focus:bg-purple-700">Admin</a> -->
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
         </header>
 
-        <section x-show="stage.login" class="center">
-            <h2>Iniciar sesión</h2>
-            <div>
-                <p>
-                    <label for="nombre">Nombre</label><br>
-                    <input type="text" id="nombre" x-model="user.id" placeholder="Ingrese nombre">
-                </p>
-                <button @click="doLogin">Ingresar</button>
+        <!-- <nav class="w-full mx-auto text-center">
+            <a href="#" @click="showModule('login')">Login</a> \
+            <a href="#" @click="showModule('courses')">Cursos</a> \
+            <a href="#" @click="showModule('upload')">Upload</a>
+        </nav> -->
+
+        <section x-show="stage.login" class="max-w-6xl mx-auto flex justify-center pt-6">
+            <div class="flex flex-col w-full max-w-xs md:max-w-md bg-white shadow-md rounded">
+                <form @submit.prevent="doLogin()" class="py-6 px-8">
+                    <div class="mb-4">
+                        <label class="block text-gray-700 text-sm font-bold mb-2" for="username">
+                            DNI
+                        </label>
+                        <input x-model="user.dni"
+                            class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+                            id="username" type="text" placeholder="Ingresar DNI">
+                    </div>
+                    <div class="mb-6">
+                        <label class="block text-gray-700 text-sm font-bold mb-2" for="password">
+                            Contraseña
+                        </label>
+                        <input x-model="user.password"
+                            class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+                            id="password" type="password" placeholder="****">
+                        <!-- <p class="text-red-500 text-xs italic">Please choose a password.</p> -->
+                    </div>
+                    <div class="flex flex-col items-center">
+                        <input
+                            class="bg-purple-500 w-full hover:bg-purple-700 text-white font-bold py-4 px-4 mb-4 rounded focus:outline-none focus:shadow-outline"
+                            :class="{'opacity-50':isLoading}" :disabled="isLoading" type="submit"
+                            :value="isLoading ? 'Ingresando...':'Ingresar'" />
+                        <!-- <a class="inline-block align-baseline text-sm text-purple-500 hover:text-purple-800" href="#">
+                            Recuperar contraseña?
+                        </a> -->
+                    </div>
+                </form>
             </div>
         </section>
 
-        <section x-show="stage.courses" class="center">
-            <h2>Elegir el curso</h2>
-            <template x-for="item in courses" :key="item.id">
-                <div>
-                    <h1>
-                        <span x-text="item.title || 'No definido'"></span>                        
-                    </h1>
-                    <button @click="openCourse(item)">Ingresar</button>
-                    <hr>
+        <section x-show="stage.courses" class="max-w-6xl mx-auto flex justify-center pt-6">
+            <div class="flex flex-col w-full max-w-xs md:max-w-2xl bg-white shadow-md rounded py-6 px-8">
+                <div x-show="courses.length > 0">
+                    <div class="inline-flex justify-center">
+                        <h2 class="text-2xl mb-2 font-bold">Elegir la clase</h2>
+                    </div>
+                    <template x-for="_course in courses" :key="_course.id">
+                        <div class="flex flex-col mb-6 py-4 px-2 border-2 border-dotted rounded">
+                            <h1 class="w-full text-2xl text-center text-purple-700 font-semibold mb-4">
+                                <span x-text="_course.curso_desc || 'No definido'"></span>
+                            </h1>
+                            <template x-for="_session in _course.sesiones" :key="_session.id">
+                                <div @click="openCourse(_session, _course)"
+                                    :class="{'cursor-pointer':_session.is_open, 'bg-purple-300':_session.is_open, 'bg-gray-300':!_session.is_open }"
+                                    class="w-full shadow-sm rounded-lg px-6 py-2 mb-3">
+                                    <span class="font-bold" x-text="_session.descripcion"></span> - <span
+                                        x-text="getSimpleDate(_session.fecha_inicio)"></span>
+                                </div>
+                            </template>
+                        </div>
+                    </template>
                 </div>
-            </template>
+                <div x-show="courses.length === 0">
+                    <h2 class="text-2xl mb-2 text-center text-purple-600 font-semibold italic">Cargando clases
+                        disponibles...</h2>
+                </div>
+            </div>
         </section>
 
-        <section x-show="stage.upload" class="center">
-            <h2>Subir archivos para <span x-text="course.title"></span></h2>
-            <br>
-            <template x-if="course.isOpen">
-                <form id="formFiles">                
-                    <p>
-                        <label>Archivos</label><br>
-                        <input type="file" x-ref="pics" @change="loaded" multiple accept="image/*"/>
-                    </p>
-                    <p>
-                        <button @click.prevent="sendFiles" id="btnSend">Enviar archivos</button>
-                    </p>
-                </form>
-            </template>
-            <template x-if="!course.isOpen">
-                <h4>El curso <span x-text="course.title"></span> se encuentra <mark>CERRADO</mark></h4>
-            </template>
+        <section x-show="stage.upload" class="max-w-6xl mx-auto flex justify-center pt-6">
+            <div class="flex flex-col w-full max-w-xs md:max-w-2xl bg-white shadow-md rounded py-6 px-8">
+                <a href="#" @click="showModule('courses')"
+                    class="px-3 py-2 w-20 rounded-md text-sm font-medium text-purple-700 bg-purple-200 hover:text-white hover:bg-purple-700">
+                    Regresar</a>
+                <div class="inline-flex justify-center">
+                    <h2 class="text-2xl mb-2 font-bold">Subir archivos para la clase <span class="font-bold"
+                            x-text="session.descripcion"></span> - <span
+                            x-text="getSimpleDate(session.fecha_inicio)"></span>
+                    </h2>
+                </div>
+                <template x-if="session.is_open">
+                    <div id="formFiles">
+                        <button @click.prevent="$refs['pics'].click()"
+                            :class="{'border-gray-300':!files.length, 'border-green-300':files.length}"
+                            class="w-full border-4 border-dashed rounded focus:outline-none focus:shadow-outline cursor-pointer px-10 py-6 flex flex-col items-center justify-center text-gray-600 text-center transition duration-150 hover:border-gray-400">
+                            <svg class="w-12 fill-current mb-3" :class="{'text-green-400':files.length}"
+                                viewBox="0 -20 339.225 339" xmlns="http://www.w3.org/2000/svg">
+                                <path
+                                    d="M282.973 64.426H56.027a5.676 5.676 0 00-5.675 5.676v158.863a5.675 5.675 0 005.675 5.672h226.946a5.671 5.671 0 005.672-5.672V70.102a5.675 5.675 0 00-5.672-5.676zM67.05 223.289l45.71-63.996 25.024 34.977-16.93 29.02zm66.949 0l69.54-119.23 69.554 119.23zM277.297 75.773v132.2L208.445 89.957a5.909 5.909 0 00-9.804 0l-54.594 93.617-26.664-37.293a5.677 5.677 0 00-4.621-2.422c-1.832 0-3.551.883-4.617 2.375l-46.442 65.02V75.774zm0 0" />
+                                <path
+                                    d="M338.438 210.02l-15.75-58.786V47.406c0-9.398-7.622-17.02-17.02-17.02h-15.387l-4.726-17.726C283.082 3.617 273.77-1.738 264.71.68L153.777 30.387H33.332c-9.398 0-17.02 7.62-17.02 17.02v19.808l-3.699.984C3.563 70.672-1.812 79.97.563 89.047l15.75 58.785V251.66c0 9.399 7.62 17.02 17.019 17.02h15.387l4.726 17.722c2.442 9.063 11.766 14.43 20.828 11.989.004-.004.012-.004.016-.004l110.934-29.707h120.445c9.398 0 17.02-7.621 17.02-17.024v-19.804l3.699-.989c9.05-2.468 14.426-11.765 12.05-20.843zM267.651 11.664a5.672 5.672 0 016.934 3.969l3.937 14.754h-80.882zM11.527 86.13a5.737 5.737 0 014.028-6.973l.757-.199v25.031zm59.817 201.3a5.676 5.676 0 01-6.934-3.968l-3.945-14.781h80.894zM311.34 251.66a5.671 5.671 0 01-5.672 5.672H33.332a5.671 5.671 0 01-5.672-5.672V47.406a5.671 5.671 0 015.672-5.672h272.336a5.671 5.671 0 015.672 5.672zm12.101-31.773l-.754.218v-25.03l4.786 17.859a5.741 5.741 0 01-4.032 6.953zm0 0" />
+                                <path
+                                    d="M135.457 138.184c12.535 0 22.695-10.16 22.695-22.692 0-12.535-10.16-22.695-22.695-22.695s-22.695 10.16-22.695 22.695c0 12.531 10.16 22.692 22.695 22.692zm0-34.04c6.266 0 11.348 5.079 11.348 11.348 0 6.266-5.082 11.344-11.348 11.344s-11.348-5.078-11.348-11.344c0-6.27 5.082-11.347 11.348-11.347zm0 0" />
+                            </svg>
+                            <p x-show="!files.length" class="font-semibold" for="file-input">Subir archivos...
+                            </p>
+
+                            <p x-show="files.length" class="font-semibold text-green-400">
+                                Archivos para subir:<br>
+                                <strong class="text-4xl" x-text="files.length"></strong>
+                            </p>
+                            <input type="file" x-ref="pics" class="hidden" aria-label="Subir archivos"
+                                @change="filesLoaded" multiple accept="image/*" />
+                        </button>
+                        <p class="text-center">
+                            <button @click.prevent="sendFiles" :class="{'opacity-50':isLoading}" :disabled="isLoading"
+                                class="px-4 py-2 bg-purple-600 text-white rounded text-center" id="btnSend">Enviar
+                                archivos</button>
+                        </p>
+                    </div>
+                </template>
+                <template x-if="!session.is_open">
+                    <h4 class="text-center">La clase <span x-text="session.descripcion"></span> se encuentra
+                        <mark>CERRADO</mark></h4>
+                </template>
+            </div>
         </section>
-      
-    </main>    
-    <script>
-        function init() {
-            const form = document.getElementById("formFiles");
 
-            return {
-                title: "Curso de EPT",
-                user: {},
-                course: {},
-                courses: [
-                    {id: 1, title: "EPT", isOpen: true, maxFiles: 10},
-                    {id: 2, title: "Tutoria", isOpen: false, maxFiles: 2},
-                ],
-                stage: {
-                    login: true,
-                    courses: false,
-                    upload: false,
-                },
-
-
-                doLogin() {
-                    this.stage.login = false;
-                    this.user.name = this.user.id;
-                    this.stage.courses = true;
-                },
-                openCourse(item) {
-                    this.stage.courses = false;
-
-                    this.course = item;
-
-                    this.stage.upload = true;
-                },
-                addInput() {                    
-                    console.log("clicked");
-                    console.log("Axios is loaded ? ");
-                    console.dir(axios);
-                    form.appendChild(buildInputFile());
-                },
-                sendFiles(e) {
-                    console.log("enviando archivos ... ");
-                    console.dir(this.$refs.pics.files);
-                },
-                loaded(e) {
-                    console.log("Loaded files");
-                    console.dir(e);
-                },
-            }
-        }
-
-        function buildInputFile() {
-            let input = document.createElement("input");
-            return input;
-        }
-    </script>
-    <script src="//cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+        <section x-show="false" class="w-screen h-screen bg-gray-200 opacity-50">
+            <div class="mx-auto max-w-lg">
+                Cargando...
+            </div>
+        </section>
+    </main>
 </body>
+
 </html>
